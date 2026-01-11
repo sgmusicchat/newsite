@@ -1,4 +1,4 @@
-*.md
+README_IMPLEMENTATION.md
 claude-context/*
 .env
 docker/.env
