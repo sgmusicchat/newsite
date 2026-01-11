@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # MySQL 8.0 Service (Database)
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: rsgmusicchat_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: rsgmusicchat_silver
+      MYSQL_USER: ${MYSQL_USER:-rsguser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-rsgpass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../database/schema:/docker-entrypoint-initdb.d:ro
+    command: --default-authentication-plugin=mysql_native_password --event-scheduler=ON
+    networks:
+      - rsgmusicchat_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Python/FastAPI Service (Internal only)
+  # ============================================
+  python_api:
+    build:
+      context: ../src
+      dockerfile: Dockerfile
+    container_name: rsgmusicchat_python
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-rsguser}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-rsgpass}
+      DB_NAME_BRONZE: rsgmusicchat_bronze
+      DB_NAME_SILVER: rsgmusicchat_silver
+      DB_NAME_GOLD: rsgmusicchat_gold
+      FASTAPI_ENV: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+      ENABLE_SCHEDULER: ${ENABLE_SCHEDULER:-true}
+      AUTO_PUBLISH_INTERVAL: ${AUTO_PUBLISH_INTERVAL:-60}
+      MOCK_SCRAPER_HOUR: ${MOCK_SCRAPER_HOUR:-6}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL_NAME: ${GEMINI_MODEL_NAME:-gemini-2.0-flash-exp}
+    ports:
+      - "8000:8000"
+    volumes:
+      - python_logs:/app/logs
+    networks:
+      - rsgmusicchat_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # ============================================
+  # PHP-FPM Service
+  # ============================================
+  php_fpm:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.php
+    container_name: rsgmusicchat_php
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-rsguser}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-rsgpass}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
+    volumes:
+      - ../frontend:/var/www/html:ro
+      - php_sessions:/var/lib/php/sessions
+    networks:
+      - rsgmusicchat_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ============================================
+  # Nginx Service
+  # ============================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: rsgmusicchat_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ../frontend:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - rsgmusicchat_network
+    depends_on:
+      - php_fpm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health.php"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  mysql_data:
+    driver: local
+  python_logs:
+    driver: local
+  php_sessions:
+    driver: local
+  nginx_logs:
+    driver: local
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  rsgmusicchat_network:
+    driver: bridge

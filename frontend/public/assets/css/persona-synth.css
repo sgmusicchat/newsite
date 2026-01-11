@@ -1,0 +1,463 @@
+/**
+ * Persona Synth Styles - Retro MySpace Aesthetic
+ * Architecture: Gutsy Startup - vanilla CSS, no preprocessors
+ * Purpose: Y2K-era visual identity for AI-generated personas
+ */
+
+/* ============================================================================
+   CSS Variables (Dynamic Theming)
+   ============================================================================ */
+
+:root {
+    --persona-bg: #000000;
+    --persona-accent: #00ff00;
+    --persona-font: monospace;
+    --persona-border: dotted;
+}
+
+/* ============================================================================
+   Modal Overlay
+   ============================================================================ */
+
+.persona-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(5px);
+    overflow-y: auto;
+}
+
+.persona-modal-content {
+    background-color: #1a1a1a;
+    margin: 3% auto;
+    padding: 40px;
+    border: 3px solid var(--persona-accent, #00ff00);
+    border-style: var(--persona-border, dotted);
+    width: 90%;
+    max-width: 700px;
+    font-family: var(--persona-font, monospace);
+    color: var(--persona-accent, #00ff00);
+    box-shadow: 0 0 30px var(--persona-accent, #00ff00);
+    position: relative;
+}
+
+.persona-close {
+    color: #aaa;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.persona-close:hover {
+    color: var(--persona-accent, #00ff00);
+}
+
+.persona-step h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.persona-step p {
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* ============================================================================
+   Retro Monitor (Camera Viewfinder)
+   ============================================================================ */
+
+.retro-monitor {
+    border: 4px solid #333;
+    background: #000;
+    padding: 10px;
+    margin: 20px 0;
+    position: relative;
+    filter: contrast(1.2) brightness(0.9);
+}
+
+/* Scanline effect */
+.retro-monitor::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.03) 0px,
+        rgba(0, 255, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+#persona-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+    filter: saturate(1.5) contrast(1.1);
+}
+
+/* ============================================================================
+   Buttons
+   ============================================================================ */
+
+.retro-btn {
+    background: var(--persona-bg, #000);
+    color: var(--persona-accent, #00ff00);
+    border: 2px solid var(--persona-accent, #00ff00);
+    padding: 12px 30px;
+    font-family: var(--persona-font, monospace);
+    font-size: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    display: inline-block;
+}
+
+.retro-btn:hover {
+    background: var(--persona-accent, #00ff00);
+    color: var(--persona-bg, #000);
+    box-shadow: 0 0 20px var(--persona-accent, #00ff00);
+    transform: translateY(-2px);
+}
+
+.retro-btn-secondary {
+    background: transparent;
+    color: #888;
+    border: 2px solid #888;
+    padding: 12px 20px;
+    font-family: var(--persona-font, monospace);
+    font-size: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+.retro-btn-secondary:hover {
+    color: var(--persona-accent, #00ff00);
+    border-color: var(--persona-accent, #00ff00);
+}
+
+.persona-step {
+    text-align: center;
+}
+
+/* ============================================================================
+   Loading Animation
+   ============================================================================ */
+
+.dialup-loader {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.loader-bar {
+    width: 100%;
+    height: 20px;
+    background: #222;
+    border: 2px solid var(--persona-accent, #00ff00);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.loader-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--persona-accent, #00ff00);
+    animation: loading 3s infinite;
+}
+
+@keyframes loading {
+    to { left: 100%; }
+}
+
+.loading-log {
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.loading-log p {
+    margin: 8px 0;
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+    font-family: monospace;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* ============================================================================
+   Persona Display Card
+   ============================================================================ */
+
+.persona-card {
+    background: var(--persona-bg, #1a1a1a);
+    border: 3px var(--persona-border, dotted) var(--persona-accent, #00ff00);
+    padding: 30px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.persona-card.neo_y2k {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    animation: rainbow-pulse 3s infinite;
+}
+
+.persona-card.glitch_grunge {
+    background: #1a1a1a;
+    position: relative;
+}
+
+.persona-card.glitch_grunge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(255,0,0,0.03) 2px,
+        rgba(255,0,0,0.03) 4px
+    );
+    pointer-events: none;
+}
+
+@keyframes rainbow-pulse {
+    0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+    50% { filter: hue-rotate(20deg) brightness(1.1); }
+}
+
+.persona-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--persona-accent, #00ff00);
+    padding-bottom: 15px;
+}
+
+.persona-header h3 {
+    font-size: 28px;
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.persona-colors {
+    display: flex;
+    gap: 8px;
+}
+
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    border: 2px solid var(--persona-accent, #00ff00);
+    border-radius: 3px;
+    transition: transform 0.2s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.2);
+}
+
+.persona-stats {
+    margin: 20px 0;
+}
+
+.stat-item {
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-label {
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.stat-value {
+    color: var(--persona-accent, #00ff00);
+    font-weight: bold;
+}
+
+.aura-bar {
+    flex: 1;
+    height: 8px;
+    background: #222;
+    border: 1px solid var(--persona-accent, #00ff00);
+    position: relative;
+    margin-left: 10px;
+}
+
+.aura-fill {
+    height: 100%;
+    background: var(--persona-accent, #00ff00);
+    transition: width 1s ease-out;
+    box-shadow: 0 0 10px var(--persona-accent, #00ff00);
+}
+
+.persona-bio {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid var(--persona-accent, #00ff00);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.persona-theme-preview {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed var(--persona-accent, #00ff00);
+    font-size: 12px;
+}
+
+.persona-theme-preview code {
+    background: #000;
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: var(--persona-accent, #00ff00);
+}
+
+.persona-music-placeholder {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+.persona-music-placeholder em {
+    opacity: 0.6;
+    font-size: 11px;
+}
+
+/* ============================================================================
+   Theme Applied to Page
+   ============================================================================ */
+
+body.persona-themed {
+    transition: background-color 2s ease;
+}
+
+/* Optional: Apply theme to event cards if they exist */
+body.persona-themed .event-card {
+    border-color: var(--persona-accent, #00ff00);
+    transition: border-color 1s ease;
+}
+
+/* ============================================================================
+   Trigger Button
+   ============================================================================ */
+
+.persona-synth-trigger {
+    text-align: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px dashed #333;
+    border-radius: 8px;
+}
+
+.persona-synth-trigger:hover {
+    border-color: var(--persona-accent, #00ff00);
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .persona-modal-content {
+        width: 95%;
+        padding: 20px;
+        margin: 10px auto;
+    }
+
+    .persona-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .retro-btn {
+        padding: 10px 20px;
+        font-size: 12px;
+    }
+
+    .stat-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .aura-bar {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+    }
+}
+
+/* ============================================================================
+   Accessibility
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .retro-btn:hover {
+        transform: none;
+    }
+
+    .loader-bar::after {
+        animation: none;
+    }
+
+    .rainbow-pulse {
+        animation: none;
+    }
+
+    .aura-fill {
+        transition: none;
+    }
+}
+
+/* Focus states for keyboard navigation */
+.retro-btn:focus,
+.retro-btn-secondary:focus,
+.persona-close:focus {
+    outline: 2px solid var(--persona-accent, #00ff00);
+    outline-offset: 2px;
+}
