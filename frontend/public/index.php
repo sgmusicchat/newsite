@@ -3,6 +3,10 @@
  * Homepage - Event Listing (Refactored for PHP 8.1+ & Terminal Functionality)
  */
 require_once '../includes/config.php';
+require_once '../includes/persona_helper.php';
+
+// Load persona theme (server-side, no JS)
+$persona_theme = get_persona_theme();
 
 // 1. Fetch Events (Gold Layer)
 $sql = "
@@ -37,10 +41,16 @@ $popular_genres = $stmt_genres->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>r/sgmusicchat - Singapore Electronic Music Events</title>
+    <!-- Persona Synth CSS -->
+    <link rel="stylesheet" href="/assets/css/persona-synth.css">
+    <!-- Persona Theme (Server-Side) -->
+    <style>
+        <?php echo render_persona_theme_css($persona_theme); ?>
+    </style>
     <style>
         /* CSS Reset & Terminal Theme */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; background: #000; color: #0f0; padding: 20px; }
+        body { font-family: var(--persona-font, 'Courier New'), monospace; background: var(--persona-bg, #000); color: var(--persona-accent, #0f0); padding: 20px; }
         .container { max-width: 1200px; margin: 0 auto; padding-bottom: 100px; }
         
         /* Header & Nav */
@@ -85,11 +95,14 @@ $popular_genres = $stmt_genres->fetchAll();
             <p>Singapore Electronic Music Events (Next 7 Days)</p>
         </header>
 
+        <?php echo render_persona_indicator($persona_theme); ?>
+
         <nav class="nav">
             <a href="/index.php">Home</a>
             <a href="/search.php">Search</a>
             <a href="/submit.php">Submit Event</a>
             <a href="/admin/">Admin</a>
+            <button id="persona-init-btn" style="background: transparent; border: 1px solid var(--persona-accent, #0f0); color: var(--persona-accent, #0f0); padding: 5px 10px; cursor: pointer; font-family: inherit; margin-left: 20px;">Generate Persona</button>
         </nav>
 
         <div id="display-area">
@@ -256,5 +269,8 @@ $popular_genres = $stmt_genres->fetchAll();
         display.innerHTML = html;
     }
     </script>
+
+    <!-- Persona Synth JavaScript -->
+    <script src="/assets/js/persona-synth.js"></script>
 </body>
 </html>
